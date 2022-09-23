@@ -30,6 +30,7 @@ work_dir      <- args[7] # /home/minoli/crop_calendars_gitlab/r_package/cropCale
 output_dir    <- args[8] # /p/projects/macmit/users/minoli/PROJECTS/GGCMI_ph3_adaptation_test_220811/ISIMIP3b/
 climate_dir   <- args[9] # /p/projects/macmit/data/GGCMI/AgMIP.input/phase3/climate_land_only/
 isimip3b.path <- args[10] # /p/projects/lpjml/input/scenarios/ISIMIP3b/[
+timesteps_per_day <- args[11]
 
 # ------------------------------------ #
 # General settings
@@ -196,8 +197,10 @@ output_df <- foreach(lo        = seq_len(ncol(lon_matrix)),
       )
 
     # Convert units
+    # Kelvin to deg C
     tas <- k2deg(tas)
-    pr  <- 60 * 60 * 24 * (pr)
+    # ?/s to ?/timestep
+    pr  <- 60 * 60 * 24 * (pr) / timesteps_per_day
 
     # Bind array along time dimension
     tas_array <- abind(tas_array, tas, use.dnns = TRUE)
