@@ -2,29 +2,73 @@
 set -e
 
 # Bash script for calculating crop calendars for GGCMI phase3 (ISIMIP3b climate)
-# Example call:
-#     ./01_calc_crop_calendars.sh "/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3"
 
-# Working directory, where the .R file is stored
-wd="$1"
-if [[ "${wd}" == "" ]]; then
-    echo "You must provide working directory (where the .R file is stored)"
-    exit 1
-elif [[ ! -d "${wd}" ]]; then
-    echo "Working directory not found: ${wd}"
-    exit 1
-fi
+#############################################################################################
+# Function-parsing code based on https://gist.github.com/neatshell/5283811
+script="01_calc_crop_calendars.sh"
 
-# GCM, scenario, crops
-gcms=('GFDL-ESM4' 'IPSL-CM6A-LR' 'MPI-ESM1-2-HR' 'MRI-ESM2-0' 'UKESM1-0-LL')
-scens=('ssp585' 'ssp370' 'ssp126' 'historical' 'picontrol')
-crops=('Maize' 'Rice' 'Sorghum' 'Soybean' 'Spring_Wheat' 'Winter_Wheat')
+# Default values
+wd="$PWD"
+gcms_in="GFDL-ESM4 IPSL-CM6A-LR MPI-ESM1-2-HR MRI-ESM2-0 UKESM1-0-LL"
+scens_in="ssp585 ssp370 ssp126 historical picontrol"
+crops_in="Maize Rice Sorghum Soybean Spring_Wheat Winter_Wheat"
 
-# For running only some scenario
-gcms=('GFDL-ESM4')
-scens=('historical')
-crops=('Maize')
-#years=('2071')
+function usage {
+echo -e "usage: $script [-w /home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3 -w PATH/TO/DIR/WITH/SCRIPT -g "GCM1 GCM2 ..." -s "SCEN1 SCEN2 ..." -c "CROP1 CROP2 ..."]\n"
+}
+
+function help {
+usage
+echo -e "OPTIONAL:"
+echo -e "  -c/--crops: List of crops to include. Default: \"${crops_in}\""
+echo -e "  -g/--gcms: List of gcms to include. Default: \"${gcms_in}\""
+echo -e "  -s/--scens: List of scenarios to include. Default: \"${scens_in}\""
+echo -e "  -w/--work-dir: Path to directory containing ${script}. Default is \$PWD."
+}
+
+# Args while-loop
+while [ "$1" != "" ];
+do
+    case $1 in
+        -c  | --crops)  shift
+            crops_in="$1"
+            ;;
+        -g  | --gcms)  shift
+            gcms_in="$1"
+            ;;
+        -s  | --scens)  shift
+            scens_in="$1"
+            ;;
+        -w  | --work-dir )  shift
+            wd="$1"
+            ;;
+        -h   | --help )        help
+            exit
+            ;;
+        *)
+            echo "$script: illegal option $1"
+            help
+            exit 1 # error
+            ;;
+    esac
+    shift
+done
+
+#############################################################################################
+
+# Convert input string lists to arrays
+gcms=()
+for g in ${gcms_in}; do
+    gcms+=($g)
+done
+scens=()
+for s in ${scens_in}; do
+    scens+=($s)
+done
+crops=()
+for c in ${crops_in}; do
+    crops+=($c)
+done
 
 # sbatch settings
 nnodes=1
