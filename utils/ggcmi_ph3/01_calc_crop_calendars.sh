@@ -14,7 +14,7 @@ scens_in="ssp585 ssp370 ssp126 historical picontrol"
 crops_in="Maize Rice Sorghum Soybean Spring_Wheat Winter_Wheat"
 
 function usage {
-echo -e "usage: $script [-w /home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3 -w PATH/TO/DIR/WITH/SCRIPT -g "GCM1 GCM2 ..." -s "SCEN1 SCEN2 ..." -c "CROP1 CROP2 ..."]\n"
+echo -e "usage: $script [-w /home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3 -w PATH/TO/DIR/WITH/SCRIPT -g "GCM1 GCM2 ..." -s "SCEN1 SCEN2 ..." -c "CROP1 CROP2 ..." -y "1850 1860 ..."]\n"
 }
 
 function help {
@@ -24,6 +24,7 @@ echo -e "  -c/--crops: List of crops to include. Default: \"${crops_in}\""
 echo -e "  -g/--gcms: List of gcms to include. Default: \"${gcms_in}\""
 echo -e "  -s/--scens: List of scenarios to include. Default: \"${scens_in}\""
 echo -e "  -w/--work-dir: Path to directory containing ${script}. Default is \$PWD."
+echo -e "  -y/--years: List of years (year after end of 30-year averaging period) to process. If specified, will skip if provided year is not in scenario's period. Default is every 10 years in each scenario's period."
 }
 
 # Args while-loop
@@ -41,6 +42,9 @@ do
             ;;
         -w  | --work-dir )  shift
             wd="$1"
+            ;;
+        -y  | --years)  shift
+            years_in="$1"
             ;;
         -h   | --help )        help
             exit
@@ -69,6 +73,12 @@ crops=()
 for c in ${crops_in}; do
     crops+=($c)
 done
+if [[ "${years_in}" != "" ]]; then
+  years=()
+  for y in ${years_in}; do
+      years+=($y)
+  done
+fi
 
 # sbatch settings
 nnodes=1
@@ -77,26 +87,37 @@ ntasks=16
 # MAIN
 for gc in "${!gcms[@]}";do
   for sc in "${!scens[@]}";do
-    for cr in "${!crops[@]}";do
 
-      # Select years for each scenario
-      if [ ${scens[sc]} = 'picontrol' ]
-      then
-        years=($(seq 1601 10 2091))
-      elif [ ${scens[sc]} = 'historical' ]
-      then
-        years=($(seq 1851 10 2021))
-      elif [[ ${scens[sc]} == 'ssp'* ]]
-      then
-        years=($(seq 2011 10 2091))
-      else
-        echo "Scenario ${scens[sc]} not recognized"
-        exit 1
+    # Select years for each scenario
+    if [ ${scens[sc]} = 'picontrol' ]; then
+      scen_y1=1601
+      scen_yN=2091
+    elif [ ${scens[sc]} = 'historical' ]; then
+      scen_y1=1851
+      scen_yN=2091
+    elif [[ ${scens[sc]} == 'ssp'* ]]; then
+      scen_y1=2011
+      scen_yN=2091
+    else
+      echo "Scenario ${scens[sc]} not recognized"
+      exit 1
+    fi
+
+    # If -y/--years not specified, generate year list here.
+    if [[ "${years}" == "" ]]; then
+      years=($(seq ${scen_y1} 10 ${scen_yN}))
+    fi
+
+    for yy in "${!years[@]}";do
+
+      # Skip any years not in this scenario.
+      if [[ ${years[yy]} -lt ${scen_y1} || ${years[yy]} -gt ${scen_yN} ]]; then
+        continue
       fi
 
-      for yy in "${!years[@]}";do
+      for cr in "${!crops[@]}";do
 
-echo "GCM: ${gcms[gc]} --- SCENARIO: ${scens[sc]} --- CROP: ${crops[cr]} YEARS: ${years[yy]}"
+echo "GCM: ${gcms[gc]} --- SCENARIO: ${scens[sc]} --- YEAR: ${years[yy]} CROP: ${crops[cr]}"
 
 # Submit job to SLURM - for arguments, see https://slurm.schedmd.com/sbatch.html
 sbatch --nodes=${nnodes} --ntasks-per-node=${ntasks} --exclusive \
@@ -105,11 +126,11 @@ R -f 01_calc_crop_calendars.R \
 --args "${gcms[gc]}" "${scens[sc]}" "${crops[cr]}" "${years[yy]}" \
 "${nnodes}" "${ntasks}"
 
-      done # yy
+      done # cr
 
 # To avoid overloading the squeue
 # sleep 1h
 
-    done # cr
+    done # yy
   done # sc
 done # gc
