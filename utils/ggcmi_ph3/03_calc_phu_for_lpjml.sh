@@ -1,8 +1,19 @@
 #!/bin/bash
 
+# Example call:
+#     ./03_calc_phu_for_lpjml.sh "/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3"
+
 # Run time per job about 30 min
 
-wd=/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3
+# Working directory, where the .R file is stored
+wd="$1"
+if [[ "${wd}" == "" ]]; then
+    echo "You must provide working directory (where the .R file is stored)"
+    exit 1
+elif [[ ! -d "${wd}" ]]; then
+    echo "Working directory not found: ${wd}"
+    exit 1
+fi
 
 gcms=('GFDL-ESM4' 'IPSL-CM6A-LR' 'MPI-ESM1-2-HR' 'MRI-ESM2-0' 'UKESM1-0-LL')
 scens=('historical' 'ssp585' 'ssp370' 'ssp126' '2015gs')

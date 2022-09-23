@@ -1,9 +1,18 @@
 #!/bin/bash
 
 # Bash script for calculating crop calendars for GGCMI phase3 (ISIMIP3b climate)
+# Example call:
+#     ./01_calc_crop_calendars.sh "/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3"
 
 # Working directory, where the .R file is stored
-wd=/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3
+wd="$1"
+if [[ "${wd}" == "" ]]; then
+    echo "You must provide working directory (where the .R file is stored)"
+    exit 1
+elif [[ ! -d "${wd}" ]]; then
+    echo "Working directory not found: ${wd}"
+    exit 1
+fi
 
 # GCM, scenario, crops
 gcms=('GFDL-ESM4' 'IPSL-CM6A-LR' 'MPI-ESM1-2-HR' 'MRI-ESM2-0' 'UKESM1-0-LL')
