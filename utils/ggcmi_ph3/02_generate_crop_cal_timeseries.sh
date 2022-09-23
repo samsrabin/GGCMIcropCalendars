@@ -35,7 +35,7 @@ for gc in "${!gcms[@]}";do
         echo "------------------------------------------------------------------"
 
 sbatch --ntasks=1 --cpus-per-task=4 -J nc_${gc}_${sc}_${cr}_${ir} -A macmit \
--t 00:30:00 --workdir=${wd} \
+-t 00:30:00 --workdir="${wd}" \
 R -f 02_generate_crop_cal_timeseries.R \
 --args "${gcms[gc]}" "${scens[sc]}" "${crops[cr]}" "${irrigs[ir]}"
 

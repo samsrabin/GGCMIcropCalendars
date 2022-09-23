@@ -51,7 +51,7 @@ echo "GCM: ${gcms[gc]} --- SCENARIO: ${scens[sc]} --- CROP: ${crops[cr]} YEARS: 
 
 # Submit job to SLURM - for arguments, see https://slurm.schedmd.com/sbatch.html
 sbatch --nodes=${nnodes} --ntasks-per-node=${ntasks} --exclusive \
--t 01:00:00 -J crop_cal -A macmit --workdir=${wd} \
+-t 01:00:00 -J crop_cal -A macmit --workdir="${wd}" \
 R -f 01_calc_crop_calendars.R \
 --args "${gcms[gc]}" "${scens[sc]}" "${crops[cr]}" "${years[yy]}" \
 "${nnodes}" "${ntasks}"

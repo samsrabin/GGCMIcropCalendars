@@ -36,7 +36,7 @@ for gc in "${!gcms[@]}";do
 
 sbatch --qos=standby --ntasks=1 --cpus-per-task=4 \
 -J nc_${gcms[gc]}_${scens[sc]}_${crops[cr]}_${irrigs[ir]} \
--A macmit -t 01:00:00 --workdir=${wd} \
+-A macmit -t 01:00:00 --workdir="${wd}" \
 R -f 03_calc_phu_for_lpjml.R \
 --args "${gcms[gc]}" "${scens[sc]}" "${crops[cr]}" "${irrigs[ir]}"
 
