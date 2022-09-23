@@ -41,8 +41,12 @@ for gc in "${!gcms[@]}";do
       elif [ ${scens[sc]} = 'historical' ]
       then
         years=($(seq 1851 10 2021))
-      else
+      elif [[ ${scens[sc]} == 'ssp'* ]]
+      then
         years=($(seq 2011 10 2091))
+      else
+        echo "Scenario ${scens[sc]} not recognized"
+        exit 1
       fi
 
       for yy in "${!years[@]}";do
