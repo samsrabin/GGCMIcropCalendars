@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # Bash script for calculating crop calendars for GGCMI phase3 (ISIMIP3b climate)
 # Example call:
