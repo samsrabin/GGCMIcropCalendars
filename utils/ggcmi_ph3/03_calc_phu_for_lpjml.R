@@ -11,25 +11,14 @@ rm(list = ls(all = TRUE))
 starttime <- Sys.time() # Track run-time
 print(starttime)
 
-# ------------------------------------ #
-# General settings
-work_dir <- setwd(paste(
-  "/home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3/"
-))
-source(paste0(work_dir, "/00_config.R"))
-
 makeplot <- TRUE
 NCELLS   <- 67420
 
 # ------------------------------------ #
 # Individual-run settings
-if (cluster_job == TRUE) {
-  # import argument from bash script
-  options(echo = FALSE) # if you want see commands in output file
-  args <- commandArgs(trailingOnly = TRUE)
-} else {
-  args <- c("GFDL-ESM4", "ssp585", "mai", "rf")
-}
+# import argument from bash script
+options(echo = FALSE) # if you want see commands in output file
+args <- commandArgs(trailingOnly = TRUE)
 print(args)
 
 # ------------------------------------ #
@@ -38,6 +27,14 @@ gcm    <- args[1]
 scen   <- args[2]
 cro    <- args[3]
 irri   <- args[4]
+work_dir      <- args[5] # /home/minoli/crop_calendars_gitlab/r_package/cropCalendars/utils/ggcmi_ph3/
+output_dir    <- args[6] # /p/projects/macmit/users/minoli/PROJECTS/GGCMI_ph3_adaptation_test_220811/ISIMIP3b/
+climate_dir   <- args[7] # /p/projects/macmit/data/GGCMI/AgMIP.input/phase3/climate_land_only/
+isimip3b.path <- args[8] # /p/projects/lpjml/input/scenarios/ISIMIP3b/[
+
+# ------------------------------------ #
+# General settings
+source(paste0(work_dir, "/00_config.R"))
 
 if (scen == "2015gs") {
 

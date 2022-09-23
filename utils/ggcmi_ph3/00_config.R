@@ -18,22 +18,13 @@ library(zoo)           # for rolling mean
 # ------------------------------------ #
 # General Settings
 
-# Output directory: where output data are going to be saved
-output_dir <- paste0("/p/projects/macmit/users/minoli/PROJECTS/",
-                   "GGCMI_ph3_adaptation_test_220811/ISIMIP3b/")
-
 parallel     <- TRUE
-cluster_job  <- TRUE
 plot_results <- TRUE
 
 # Years for which crop calendars should be computed
 ccal_years    <- seq(1601, 2091, by = 10)
 # Number of years for average climate
 clm_avg_years <- 30
-
-climate_dir <- paste0("/p/projects/macmit/data/GGCMI/AgMIP.input/",
-                      "phase3/climate_land_only/")
-isimip3b.path <- "/p/projects/lpjml/input/scenarios/ISIMIP3b/" # .clm climate
 
 # Climate input files
 gcms <- c(
